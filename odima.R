@@ -13,7 +13,7 @@ permuteDist = function(d){
   as.dist(d[p,p])
 }
 
-pdCorMediationTest = function(exposure, mediator, response, nrep=99999){
+pdCorMediationTest = function(exposure, mediator, response, nrep){
   if (is.null(nrep))
     nrep <- 0
   if(bcdcor(exposure, mediator)< pdcor(mediator, response, exposure)){

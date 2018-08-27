@@ -1,9 +1,9 @@
-mediationStat = function(exposure, mediator, response){
+ODIMAstat = function(exposure, mediator, response){
   EM = bcdcor(exposure, mediator)
   MRE = pdcor(mediator, response, exposure)
-  mediationStat <- EM*MRE
-  attr(mediationStat, "names") <- "MediationStat"
-  return(mediationStat)
+  ODIMAstat <- EM*MRE
+  attr(ODIMAstat, "names") <- "ODIMA stat"
+  return(ODIMAstat)
 }
 
 permuteDist = function(d){
@@ -13,14 +13,17 @@ permuteDist = function(d){
   as.dist(d[p,p])
 }
 
-pdCorMediationTest = function(exposure, mediator, response, nrep=NULL){
+odima = function(exposure, mediator, response, nrep=999){
   method <- "WARNING:Specify the number of replicates nrep>0 to perform the test"
   if (!is.null(nrep)){
     nrep <- floor(nrep)
     if (nrep <1)
       nrep <- 0
     if (nrep > 0)
-      method <- "pdCor mediation test of independence of mediator and response removing exposure"
+      method <- cat(paste("ODIMA: A Method for Omnibus Distance Mediation Analysis \n sample estimates are bias-corrected distance correlation (bcdcor) of indicated pairs and \n partial distance correlation (pdcor) of",
+                      deparse(substitute(exposure)), "and", 
+                      deparse(substitute(mediator)), "removing",
+                      deparse(substitute(response))))
   }
   else {
     nrep <- 0
@@ -31,16 +34,23 @@ pdCorMediationTest = function(exposure, mediator, response, nrep=NULL){
   else{
     S <- replicate(nrep, expr = bcdcor(exposure,mediator)*pdcor(mediator, permuteDist(response), exposure))
   }
-  p.value <- ifelse( nrep>0, ((1+sum(S>mediationStat(exposure, mediator, response)))/(nrep+1)), 1)
-  dataname <- paste("replicates ", nrep, sep = "")
-  bcdcor_estimates <- c(bcdcor(exposure, mediator)[1], bcdcor(exposure, response), bcdcor(mediator, response)#, pdcor(distjsd_early, dR_early, dE_early)
-                        )
-    e <- list(method = method, 
-            statistic = mediationStat(exposure, mediator, response), 
-            estimates = bcdcor_estimates,
+  p.value <- ifelse( nrep>0, ((1+sum(S>ODIMAstat(exposure, mediator, response)))/(nrep+1)), 1)
+  bcdcorEM <- bcdcor(exposure, mediator)
+  bcdcorER <- bcdcor(exposure, response)
+  bcdcorMR <- bcdcor(mediator, response)
+  pdcorMRE <- pdcor(mediator, response, exposure)
+  attr(bcdcorEM, "names") <- "Exposure-Mediator bcdcor"
+  attr(bcdcorER, "names") <- "Exposure-Response bcdcor"
+  attr(bcdcorMR, "names") <- "Mediator-Response bcdcor"
+  attr(pdcorMRE, "names") <- "Mediator-Response-Exposure pdcor"
+  
+  e <- list(method = method,
+            data.name = base::paste("number of permutations + 1:", nrep+1, "\n"),
+            statistic = ODIMAstat(exposure, mediator, response), 
             p.value = p.value,
-            replicates = nrep,
-            data.name = dataname)
+            estimates = c(bcdcorEM, bcdcorER, bcdcorMR, pdcorMRE)
+            #other options for getAnywhere(htest): parameter, alternative, null.value, conf.int
+            )
   class(e) <- "htest"
   return(e)
   }

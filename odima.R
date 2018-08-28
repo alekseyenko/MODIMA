@@ -20,10 +20,7 @@ odima = function(exposure, mediator, response, nrep=999){
     if (nrep <1)
       nrep <- 0
     if (nrep > 0)
-      method <- cat(paste("ODIMA: A Method for Omnibus Distance Mediation Analysis \n sample estimates are bias-corrected distance correlation (bcdcor) of indicated pairs and \n partial distance correlation (pdcor) of",
-                      deparse(substitute(exposure)), "and", 
-                      deparse(substitute(mediator)), "removing",
-                      deparse(substitute(response))))
+      method <- paste("ODIMA: Omnibus Distance Mediation Analysis")
   }
   else {
     nrep <- 0
@@ -43,9 +40,11 @@ odima = function(exposure, mediator, response, nrep=999){
   attr(bcdcorER, "names") <- "Exposure-Response bcdcor"
   attr(bcdcorMR, "names") <- "Mediator-Response bcdcor"
   attr(pdcorMRE, "names") <- "Mediator-Response-Exposure pdcor"
-  
   e <- list(method = method,
-            data.name = base::paste("number of permutations + 1:", nrep+1, "\n"),
+            data.name = base::paste("number of permutations + 1:", nrep+1,
+                              "\n sample estimates are \n \t-bias-corrected distance correlation (bcdcor) of indicated pairs and \n \t-partial distance correlation (pdcor) of",
+                           deparse(substitute(exposure)), "and", deparse(substitute(mediator)), "removing", deparse(substitute(response))
+                                    ),
             statistic = ODIMAstat(exposure, mediator, response), 
             p.value = p.value,
             estimates = c(bcdcorEM, bcdcorER, bcdcorMR, pdcorMRE)

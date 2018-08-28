@@ -42,8 +42,8 @@ odima = function(exposure, mediator, response, nrep=999){
   attr(pdcorMRE, "names") <- paste0(deparse(substitute(mediator)), "\u2013", deparse(substitute(response)), "\u2013", deparse(substitute(exposure)), " pdcor")
   e <- list(method = method,
             data.name = base::paste("number of permutations + 1:", nrep+1,
-                              "\n sample estimates are \n \t-bias-corrected distance correlation (bcdcor) of indicated pairs and \n \t-partial distance correlation (pdcor) of",
-                           deparse(substitute(exposure)), "and", deparse(substitute(mediator)), "removing", deparse(substitute(response))
+                              "\n sample estimates are \n \t-bias-corrected distance correlation (bcdcor) of indicated pairs and \n \t-partial distance correlation (pdcor) of indicated triple"
+                           #deparse(substitute(exposure)), "and", deparse(substitute(mediator)), "removing", deparse(substitute(response))
                                     ),
             statistic = ODIMAstat(exposure, mediator, response), 
             p.value = p.value,

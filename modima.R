@@ -45,7 +45,7 @@ modima = function(exposure, mediator, response, nrep=999){
                                     "\n       mediator = ", deparse(substitute(mediator)),
                                     "\n       response = ", deparse(substitute(response)),
                                     "\nnumber of permutations + 1:", nrep+1,
-                                    "\n sample estimates are \n \t-bias-corrected distance correlation (energy::bcdcor) of indicated pairs and \n \t-partial distance correlation (energy::pdcor) of indicated triple"
+                                    "\nsample estimates are \n \t-bias-corrected distance correlation (energy::bcdcor) of indicated pairs and \n \t-partial distance correlation (energy::pdcor) of indicated triple"
                                     #deparse(substitute(exposure)), "and", deparse(substitute(mediator)), "removing", deparse(substitute(response))
                                     ),
             statistic = MODIMAstat(exposure, mediator, response), 

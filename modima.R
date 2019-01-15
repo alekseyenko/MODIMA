@@ -44,7 +44,7 @@ modima = function(exposure, mediator, response, nrep=999){
             data.name = base::paste("exposure = ", deparse(substitute(exposure)),
                                     "\n       mediator = ", deparse(substitute(mediator)),
                                     "\n       response = ", deparse(substitute(response)),
-                                    "number of permutations + 1:", nrep+1,
+                                    "\nnumber of permutations + 1:", nrep+1,
                                     "\n sample estimates are \n \t-bias-corrected distance correlation (energy::bcdcor) of indicated pairs and \n \t-partial distance correlation (energy::pdcor) of indicated triple"
                                     #deparse(substitute(exposure)), "and", deparse(substitute(mediator)), "removing", deparse(substitute(response))
                                     ),

@@ -1,4 +1,4 @@
-MODIMAstat = function(exposure, mediator, response){
+MODIMAstat <- function(exposure, mediator, response){
   EM = bcdcor(exposure, mediator)
   MRE = pdcor(mediator, response, exposure)
   MODIMAstat <- EM*MRE
@@ -6,16 +6,16 @@ MODIMAstat = function(exposure, mediator, response){
   return(MODIMAstat)
 }
 
-subset.distance = function(d, sub) as.dist(as.matrix(d)[sub, sub])
+subset.distance <- function(d, sub) as.dist(as.matrix(d)[sub, sub])
 
-permuteDist = function(d){
+permuteDist <- function(d){
   d=as.matrix(d)
   n=nrow(d)
   p=sample(n)
   as.dist(d[p,p])
 }
 
-modima = function(exposure, mediator, response, nrep=999){
+modima <- function(exposure, mediator, response, nrep=999){
   method <- "WARNING:Specify the number of replicates nrep>0 to perform the test"
   if (!is.null(nrep)){
     nrep <- floor(nrep)
@@ -58,7 +58,7 @@ modima = function(exposure, mediator, response, nrep=999){
   return(e)
   }
 
-spdcov.test = function (x, y, z, R){
+spdcov.test <- function (x, y, z, R){
   if (!(class(x) == "dist")) 
     x <- dist(x)
   if (!(class(y) == "dist")) 

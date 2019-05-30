@@ -33,10 +33,10 @@ modima <- function(exposure, mediator, response, nrep=999){
   p3 <- spdcov.test(mediator, response, exposure, R = nrep)$p.value
   p4 <- spdcov.test(response, mediator, exposure, R = nrep)$p.value
   p5 <- energy::pdcov.test(mediator, response, exposure, R = nrep)$p.value
-  bcdcorEM <- bcdcor(exposure, mediator)
-  bcdcorER <- bcdcor(exposure, response)
-  bcdcorMR <- bcdcor(mediator, response)
-  pdcorMRE <- pdcor(mediator, response, exposure)
+  bcdcorEM <- enegry::bcdcor(exposure, mediator)
+  bcdcorER <- energy::bcdcor(exposure, response)
+  bcdcorMR <- energy::bcdcor(mediator, response)
+  pdcorMRE <- energy::pdcor(mediator, response, exposure)
   attr(bcdcorEM, "names") <- paste0("exposure", "\u2013", "mediator", " bcdcor")
   attr(bcdcorER, "names") <- paste0("exposure", "\u2013", "response", " bcdcor")
   attr(bcdcorMR, "names") <- paste0("mediator", "\u2013", "response", " bcdcor")

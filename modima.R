@@ -6,6 +6,8 @@ MODIMAstat = function(exposure, mediator, response){
   return(MODIMAstat)
 }
 
+subset.distance = function(d, sub) as.dist(as.matrix(d)[sub, sub])
+
 permuteDist = function(d){
   d=as.matrix(d)
   n=nrow(d)
@@ -25,13 +27,12 @@ modima = function(exposure, mediator, response, nrep=999){
   else {
     nrep <- 0
   }
-  if(bcdcor(exposure, mediator)< pdcor(mediator, response, exposure)){
-    S <- replicate(nrep,expr = bcdcor(permuteDist(exposure),mediator)*pdcor(mediator, response, exposure))
-  }
-  else{
-    S <- replicate(nrep, expr = bcdcor(exposure,mediator)*pdcor(mediator, permuteDist(response), exposure))
-  }
-  p.value <- ifelse( nrep>0, ((1+sum(S>MODIMAstat(exposure, mediator, response)))/(nrep+1)), 1)
+  modima_stat <- MODIMAstat(exposure, mediator, response)
+  p1 <- energy::dcor.test(exposure, mediator, R = nrep)$p.value
+  p2 <- energy::dcor.test(mediator, response, R = nrep)$p.value
+  p3 <- spdcov.test(mediator, response, exposure, R = nrep)$p.value
+  p4 <- spdcov.test(response, mediator, exposure, R = nrep)$p.value
+  p5 <- energy::pdcov.test(mediator, response, exposure, R = nrep)$p.value
   bcdcorEM <- bcdcor(exposure, mediator)
   bcdcorER <- bcdcor(exposure, response)
   bcdcorMR <- bcdcor(mediator, response)
@@ -44,12 +45,12 @@ modima = function(exposure, mediator, response, nrep=999){
             data.name = base::paste("exposure = ", deparse(substitute(exposure)),
                                     "\n       mediator = ", deparse(substitute(mediator)),
                                     "\n       response = ", deparse(substitute(response)),
-                                    "\nnumber of permutations + 1:", nrep+1,
+                                    "\nnumber of permutations=", nrep+1,
                                     "\nsample estimates are \n \t-bias-corrected distance correlation (energy::bcdcor) of indicated pairs and \n \t-partial distance correlation (energy::pdcor) of indicated triple"
                                     #deparse(substitute(exposure)), "and", deparse(substitute(mediator)), "removing", deparse(substitute(response))
                                     ),
-            statistic = MODIMAstat(exposure, mediator, response), 
-            p.value = p.value,
+            statistic = modima_stat, 
+            p.value = max(p1, p2, p3, p4, p5),
             estimates = c(bcdcorEM, bcdcorER, bcdcorMR, pdcorMRE)
             #other options for getAnywhere(htest): parameter, alternative, null.value, conf.int
             )
@@ -57,4 +58,41 @@ modima = function(exposure, mediator, response, nrep=999){
   return(e)
   }
 
-subset.distance = function(d, sub) as.dist(as.matrix(d)[sub, sub])
+spdcov.test = function (x, y, z, R){
+  if (!(class(x) == "dist")) 
+    x <- dist(x)
+  if (!(class(y) == "dist")) 
+    y <- dist(y)
+  if (!(class(z) == "dist")) 
+    z <- dist(z)
+  Dx <- as.matrix(x)
+  Dy <- as.matrix(y)
+  Dz <- as.matrix(z)
+  n <- nrow(Dx)
+  Pxz <- energy:::projection(Dx, Dz)  ##we use ::: since these objects are not exported, otherwise we get this error: Error in { : task 1 failed - "'projection' is not an exported object from 'namespace:energy'"
+  Py <- energy:::U_center(Dy)
+  
+  teststat <- n * energy:::U_product(Pxz, Py)
+  den <- sqrt(energy:::U_product(Pxz, Pxz) * energy:::U_product(Py, Py))
+  if (den > 0) {
+    estimate <- teststat/(n * den)
+  }
+  else estimate <- 0
+  bootfn <- function(Pxz, i, Py) {
+    energy:::U_product(Pxz[i, i], Py)
+  }
+  reps <- replicate(R, expr = {
+    i <- sample(1:n)
+    bootfn(Pxz, i, Py = Py)
+  })
+  replicates <- n * reps
+  pval <- (1 + sum(replicates >= teststat))/(1 + R)
+  dataname <- paste("replicates ", R, sep = "")
+  names(estimate) <- "spdcor"
+  names(teststat) <- "n V^*"
+  e <- list(call = match.call(), method = paste("semi-pdcov test", 
+                                                sep = ""), statistic = teststat, estimate = estimate, 
+            p.value = pval, n = n, replicates = replicates, data.name = dataname)
+  class(e) <- "htest"
+  return(e)
+}
